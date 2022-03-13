@@ -1,8 +1,6 @@
-from unicodedata import name
 from fastapi import Depends, HTTPException, Response, status, APIRouter
 from sqlalchemy.orm import Session
 from app import schemas
-from app import models
 from app.database import get_db
 from app.models import ExpenseTable, IncomeTable
 
@@ -22,7 +20,7 @@ async def get_table(createdAt: str, db: Session = Depends(get_db)):
     return {"income": incomeTable, "expense": expenseTable}
 
 
-@router.post("/")
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_table(table: schemas.Table, db: Session = Depends(get_db)):
     # sourcery skip: inline-immediately-returned-variable
     tableDict = table.dict()
