@@ -61,5 +61,22 @@ async def create_table(table: schemas.Table, db: Session = Depends(get_db)):
 
 
 @router.delete("/")
-async def delete_entries():
-    pass
+async def delete_entries(ids: schemas.EntriesToDelete, db: Session = Depends(get_db)):
+    for value in ids.incomeToDelete:
+        deleteQuery = db.query(IncomeTable).filter(IncomeTable.id == value)
+        deleteEntry = deleteQuery.first()
+        if deleteEntry is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"Entry with id: {value} Doesnt Exist")
+        deleteQuery.delete()
+
+    for value in ids.expenseToDelete:
+        deleteQuery = db.query(ExpenseTable).filter(ExpenseTable.id == value)
+        deleteEntry = deleteQuery.first()
+        if deleteEntry is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"Entry with id: {value} Doesnt Exist")
+        deleteQuery.delete()
+
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

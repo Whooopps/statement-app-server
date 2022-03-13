@@ -31,5 +31,5 @@ class Table(BaseModel):
 
 
 class EntriesToDelete(BaseModel):
-    incomeToDelete: List[int]
-    expenseToDelete: List[int]
+    incomeToDelete: Optional[List[int]] = None
+    expenseToDelete: Optional[List[int]] = None
