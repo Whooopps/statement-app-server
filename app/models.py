@@ -8,6 +8,7 @@ class IncomeTable(Base):
     name = Column(String, nullable=False)
     flatNo = Column(Integer, nullable=False)
     amount = Column(Integer, nullable=False)
+    date = Column(String, nullable=False)
     createdAt = Column(String, nullable=False)
     entryAdded = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()')
                         )
