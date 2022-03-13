@@ -11,3 +11,15 @@ class IncomeTable(Base):
     createdAt = Column(String, nullable=False)
     entryAdded = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()')
                         )
+
+
+class ExpenseTable(Base):
+    __tablename__ = "expenseTable"
+    id = Column(Integer, primary_key=True, index=True, nullable=False)
+    expenseName = Column(String, nullable=False)
+    vrNo = Column(Integer)
+    expenseDate = Column(String, nullable=False)
+    expenseReason = Column(String)
+    createdAt = Column(String, nullable=False)
+    entryAdded = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()')
+                        )
