@@ -1,8 +1,12 @@
 from fastapi import Depends, HTTPException, Response, status, APIRouter
+from pydantic import UUID4
 from sqlalchemy.orm import Session
-from app import schemas
+from app import oauth2, schemas
 from app.database import get_db
-from app.models import ExpenseTable, IncomeTable
+from app.models import CarryForward, ExpenseTable, IncomeTable
+from app.utils import RoleChecker
+
+allow = RoleChecker(["admin"])
 
 router = APIRouter(
     prefix="/table",
@@ -20,12 +24,14 @@ async def get_table(createdAt: str, db: Session = Depends(get_db)):
     return {"income": incomeTable, "expense": expenseTable}
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
-async def create_table(table: schemas.Table, db: Session = Depends(get_db)):
+@router.post("/", status_code=status.HTTP_201_CREATED, dependencies=[Depends(allow)])
+async def create_table(table: schemas.Table, db: Session = Depends(get_db),):
     # sourcery skip: inline-immediately-returned-variable
     tableDict = table.dict()
     incomeTableData = tableDict["income"]
     expenseTableData = tableDict["expense"]
+    cfTableData = tableDict["total"]
+    print(cfTableData)
 
     for value in incomeTableData:
         value["createdAt"] = tableDict["createdAt"]
@@ -47,6 +53,16 @@ async def create_table(table: schemas.Table, db: Session = Depends(get_db)):
             newExpenseTbl = ExpenseTable(**value)
             db.add(newExpenseTbl)
 
+    cfTableQuery = db.query(CarryForward).filter(
+        CarryForward.createdAt == tableDict["createdAt"])
+    cfTableEntry = cfTableQuery.first()
+    if cfTableEntry is not None:
+        cfTableQuery.update(cfTableData)
+    else:
+        cfTableData["createdAt"] = tableDict["createdAt"]
+        newCFtbl = CarryForward(**cfTableData)
+        db.add(newCFtbl)
+
     db.commit()
 
     newIncomeTables = db.query(IncomeTable).filter(
@@ -55,10 +71,13 @@ async def create_table(table: schemas.Table, db: Session = Depends(get_db)):
     newExpenseTables = db.query(ExpenseTable).filter(
         ExpenseTable.createdAt == tableDict["createdAt"]).all()
 
-    return {"income": newIncomeTables, "expense": newExpenseTables}
+    newCFTables = db.query(CarryForward).filter(
+        CarryForward.createdAt == tableDict["createdAt"]).first()
+
+    return {"income": newIncomeTables, "expense": newExpenseTables, "total": newCFTables}
 
 
-@router.delete("/")
+@router.delete("/", dependencies=[Depends(allow)])
 async def delete_entries(ids: schemas.EntriesToDelete, db: Session = Depends(get_db)):
     for value in ids.incomeToDelete:
         deleteQuery = db.query(IncomeTable).filter(IncomeTable.id == value)

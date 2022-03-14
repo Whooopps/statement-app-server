@@ -1,11 +1,7 @@
 
-from ast import Str
+from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel
-
-# API RESPONSE
-
-# USER RESPONSE
+from pydantic import UUID4, BaseModel, EmailStr
 
 
 class IncomeTable(BaseModel):
@@ -24,12 +20,41 @@ class ExpenseTable(BaseModel):
     id: Optional[int] = None
 
 
+class CF(BaseModel):
+    cf: Optional[int] = 0
+    nextMonthCF: Optional[int] = 0
+
+
 class Table(BaseModel):
-    income: List[IncomeTable]
-    expense: List[ExpenseTable]
+    income: Optional[List[IncomeTable]] = None
+    expense: Optional[List[ExpenseTable]] = None
+    total: CF
     createdAt: str
 
 
 class EntriesToDelete(BaseModel):
     incomeToDelete: Optional[List[int]] = None
     expenseToDelete: Optional[List[int]] = None
+
+
+class Token(BaseModel):
+    accessToken: str
+    tokenType: str
+
+
+class TokenData(BaseModel):
+    id: Optional[UUID4] = None
+
+
+class UserOut(BaseModel):
+    id: UUID4
+    email: EmailStr
+    userCreatedAt: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class CreateUser(BaseModel):
+    email: EmailStr
+    password: str
