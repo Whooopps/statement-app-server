@@ -15,13 +15,16 @@ router = APIRouter(
 
 
 @router.get("/{createdAt}")
-async def get_table(createdAt: str, db: Session = Depends(get_db)):
+async def get_table(createdAt: str, db: Session = Depends(get_db), curr_user: UUID4 = Depends(oauth2.get_current_user)):
     # sourcery skip: inline-immediately-returned-variable
     incomeTable = db.query(IncomeTable).filter(
-        IncomeTable.createdAt == createdAt).all()
+        IncomeTable.createdAt == createdAt).order_by(IncomeTable.date).all()
     expenseTable = db.query(ExpenseTable).filter(
-        ExpenseTable.createdAt == createdAt).all()
-    return {"income": incomeTable, "expense": expenseTable}
+        ExpenseTable.createdAt == createdAt).order_by(ExpenseTable.expenseDate).all()
+    cfQuery = db.query(CarryForward).filter(
+        CarryForward.createdAt == createdAt)
+    cfData = cfQuery.first()
+    return {"income": incomeTable, "expense": expenseTable, "cf": cfData}
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED, dependencies=[Depends(allow)])

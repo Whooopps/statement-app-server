@@ -1,5 +1,6 @@
 
 from datetime import datetime
+import email
 from typing import List, Optional
 from pydantic import UUID4, BaseModel, EmailStr
 
@@ -28,7 +29,7 @@ class CF(BaseModel):
 class Table(BaseModel):
     income: Optional[List[IncomeTable]] = None
     expense: Optional[List[ExpenseTable]] = None
-    total: CF
+    cf: CF
     createdAt: str
 
 
@@ -44,6 +45,7 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     id: Optional[UUID4] = None
+    expires: Optional[datetime]
 
 
 class UserOut(BaseModel):
@@ -58,3 +60,7 @@ class UserOut(BaseModel):
 class CreateUser(BaseModel):
     email: EmailStr
     password: str
+
+
+class CheckEmail(BaseModel):
+    email: EmailStr

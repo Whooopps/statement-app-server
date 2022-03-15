@@ -21,6 +21,7 @@ class ExpenseTable(Base):
     id = Column(Integer, primary_key=True, index=True, nullable=False)
     expenseName = Column(String, nullable=False)
     vrNo = Column(Integer)
+    expenseAmount = Column(Integer, nullable=False)
     expenseDate = Column(String, nullable=False)
     expenseReason = Column(String)
     createdAt = Column(String, nullable=False)

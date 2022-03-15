@@ -37,10 +37,19 @@ def verify_access_token(token: str, credentialsException):
         payload = jwt.decode(token, settings.SECRECT_KEY,
                              algorithms=[settings.ALGORITHM])
         id: UUID4 = payload.get("userID")
+        expires = payload.get("exp")
 
         if id is None:
             raise credentialsException
-        tokenData = schemas.TokenData(id=id)
+
+        tokenData = schemas.TokenData(id=id, expires=expires)
+
+        if expires is None:
+            raise credentialsException
+
+        if tokenData.expires.replace(tzinfo=None) < datetime.utcnow():
+            raise credentialsException
+
     except JWTError as e:
         raise credentialsException from e
 
