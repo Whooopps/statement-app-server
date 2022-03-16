@@ -1,29 +1,29 @@
 
 from datetime import datetime
-import email
 from typing import List, Optional
 from pydantic import UUID4, BaseModel, EmailStr
 
 
 class IncomeTable(BaseModel):
-    name: str
-    flatNo: int
-    amount: int
-    date: str
+    name: Optional[str] = None
+    flatNo: Optional[int] = None
+    amount: Optional[int] = None
+    date: Optional[str] = None
     id: Optional[int] = None
 
 
 class ExpenseTable(BaseModel):
-    expenseName: str
+    expenseName: Optional[str] = None
     vrNo: Optional[int] = None
-    expenseDate: str
-    expenseReason: Optional[str] = ""
+    expenseDate: Optional[str] = None
+    expenseReason: Optional[str] = None
+    expenseAmount: Optional[int] = None
     id: Optional[int] = None
 
 
 class CF(BaseModel):
-    cf: Optional[int] = 0
-    nextMonthCF: Optional[int] = 0
+    cf: Optional[int] = None
+    nextMonthCF: Optional[int] = None
 
 
 class Table(BaseModel):
@@ -34,8 +34,8 @@ class Table(BaseModel):
 
 
 class EntriesToDelete(BaseModel):
-    incomeToDelete: Optional[List[int]] = None
-    expenseToDelete: Optional[List[int]] = None
+    income: List[int]
+    expense: List[int]
 
 
 class Token(BaseModel):
