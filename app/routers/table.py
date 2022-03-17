@@ -33,22 +33,33 @@ async def table(createdAt: str, db: Session = Depends(get_db)):
 
     border = workbook.add_format({'border': 2})
     border_align_center = workbook.add_format({'border': 2, 'align': 'center'})
+    border_align_center_bold = workbook.add_format(
+        {'border': 2, 'align': 'center', "bold": True})
     border_align_right = workbook.add_format({'border': 2, 'align': 'right'})
+    border_align_right_num_format = workbook.add_format(
+        {'border': 2, 'align': 'right', 'num_format': '₹ #,##0'})
     align_center = workbook.add_format(
         {'align': 'center', 'border': 1, 'border_color': '#FFFFFF'})
     align_right = workbook.add_format(
         {'align': 'right', 'border': 1, 'border_color': '#FFFFFF'})
+    align_right_bold = workbook.add_format(
+        {'align': 'right', 'border': 1, 'border_color': '#FFFFFF', "bold": True})
     font_size = workbook.add_format()
+    num_format = workbook.add_format({'num_format': '₹ #,##0'})
     align_center_bold = workbook.add_format(
         {'align': 'center', 'border': 1, 'border_color': '#FFFFFF', 'bold': True})
 
     border.set_font_size(15)
     border_align_right.set_font_size(15)
     border_align_center.set_font_size(15)
+    border_align_center_bold.set_font_size(15)
     font_size.set_font_size(15)
     align_right.set_font_size(15)
+    align_right_bold.set_font_size(15)
     align_center.set_font_size(15)
     align_center_bold.set_font_size(15)
+    border_align_right_num_format.set_font_size(15)
+    num_format.set_font_size(15)
 
     worksheet.write(2, 0, 'No', border_align_center)
     worksheet.write(2, 1, 'Name', border_align_center)
@@ -80,7 +91,7 @@ async def table(createdAt: str, db: Session = Depends(get_db)):
         worksheet.write(row, 0, row - 2,  border_align_center)
         worksheet.write(row, 1, income.name,  border)
         worksheet.write(row, 2, income.flatNo,  border_align_center)
-        worksheet.write(row, 3, income.amount, border_align_right)
+        worksheet.write(row, 3, income.amount, border_align_right_num_format)
         worksheet.write(row, 4, income.date,  border_align_center)
         row += 1
 
@@ -95,7 +106,8 @@ async def table(createdAt: str, db: Session = Depends(get_db)):
         worksheet.write(row, 7, expense.expenseName, border)
         worksheet.write(row, 8, expense.vrNo, border_align_center)
         worksheet.write(row, 9, expense.expenseDate, border_align_center)
-        worksheet.write(row, 10, expense.expenseAmount, border_align_right)
+        worksheet.write(row, 10, expense.expenseAmount,
+                        border_align_right_num_format)
         worksheet.write(row, 11, expense.expenseReason, border)
         row += 1
 
@@ -107,40 +119,42 @@ async def table(createdAt: str, db: Session = Depends(get_db)):
         worksheet.write_blank(totalRow, i, '', border_align_center)
     totalRow += 1
 
-    worksheet.write(totalRow, 2, "Total", border_align_center)
+    worksheet.write(totalRow, 2, "Total", border_align_center_bold)
     worksheet.write(
-        totalRow, 3, f"=SUM(D2,D{lastIncomeRow})", border_align_right)
-    worksheet.write(totalRow, 9, "Total", border_align_center)
+        totalRow, 3, f"=SUM(D2:D{lastIncomeRow})", border_align_right_num_format)
+    worksheet.write(totalRow, 9, "Total", border_align_center_bold)
     worksheet.write(
-        totalRow, 10, f"=SUM(K3,k{lastExpenseRow})", border_align_right)
+        totalRow, 10, f"=SUM(K3:k{lastExpenseRow})", border_align_right_num_format)
 
-    worksheet.write(totalRow + 2, 9, "Income Total", border_align_center)
+    worksheet.write(totalRow + 2, 9, "Income Total", border_align_center_bold)
     worksheet.write(totalRow + 2, 10,
-                    f"=SUM(D2,D{lastIncomeRow})", border_align_right)
+                    f"=D{totalRow+1}", border_align_right_num_format)
 
-    worksheet.write(totalRow + 3, 9, "Expense Total", border_align_center)
+    worksheet.write(totalRow + 3, 9, "Expense Total", border_align_center_bold)
     worksheet.write(totalRow + 3, 10,
-                    f"=SUM(K3,k{lastExpenseRow})", border_align_right)
+                    f"=K{totalRow+1}", border_align_right_num_format)
 
     worksheet.merge_range('A1:C1', 'INCOME', align_center_bold)
     worksheet.merge_range('H1:J1', 'EXPENSE', align_center_bold)
 
-    worksheet.write('D1', 'Month:', align_right)
+    worksheet.write('D1', 'Month:', align_right_bold)
     worksheet.write('E1', f"{monthName}, {splitCreatedAt[0]}", font_size)
-    worksheet.write('K1', 'Month:', align_right)
+    worksheet.write('K1', 'Month:', align_right_bold)
     worksheet.write('L1', f"{monthName}, {splitCreatedAt[0]}", font_size)
 
     cfQuery = db.query(CarryForward).filter(
         CarryForward.createdAt == createdAt)
     cfData = cfQuery.first()
+    if cfData is None:
+        cfData = CarryForward(**{"cf": 0, "nextMonthCF": 0})
 
     worksheet.merge_range(
-        'A2:C2', 'C/F of previous month:', align_right)
-    worksheet.write('D2', cfData.cf, font_size)
+        'A2:C2', 'C/F OF PREVIOUS MONTH:', align_right_bold)
+    worksheet.write('D2', cfData.cf, border_align_right_num_format)
 
-    worksheet.write(totalRow + 4, 9, "Balance", border_align_center)
+    worksheet.write(totalRow + 4, 9, "Balance", border_align_center_bold)
     worksheet.write(totalRow + 4, 10,
-                    cfData.nextMonthCF, border_align_right)
+                    cfData.nextMonthCF, border_align_right_num_format)
 
     workbook.close()
     output.seek(0)
