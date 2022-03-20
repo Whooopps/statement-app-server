@@ -9,7 +9,7 @@ from app.database import get_db
 from app.models import User
 from app import schemas
 
-oauth2Scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2Scheme = OAuth2PasswordBearer(tokenUrl="api/login")
 
 
 def create_access_token(data: dict):
