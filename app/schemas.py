@@ -6,7 +6,7 @@ from pydantic import UUID4, BaseModel, EmailStr
 
 class IncomeTable(BaseModel):
     name: Optional[str] = None
-    flatNo: Optional[int] = None
+    flatNo: Optional[str] = None
     amount: Optional[int] = None
     date: Optional[str] = None
     id: Optional[int] = None

@@ -8,7 +8,7 @@ class IncomeTable(Base):
     __tablename__ = "incomeTable"
     id = Column(Integer, primary_key=True, index=True, nullable=False)
     name = Column(String)
-    flatNo = Column(Integer)
+    flatNo = Column(String)
     amount = Column(Integer)
     date = Column(String, nullable=False)
     createdAt = Column(String, nullable=False)

@@ -8,7 +8,7 @@ from app.models import User
 router = APIRouter()
 
 
-@router.post("/checkemail")
+@router.post("api/checkemail")
 async def check_email(data: schemas.CheckEmail, db: Session = Depends(get_db)):
     emailQuery = db.query(User).filter(User.email == data.email).first()
     if emailQuery is None:
@@ -17,7 +17,7 @@ async def check_email(data: schemas.CheckEmail, db: Session = Depends(get_db)):
     return {"valid": False}
 
 
-@router.post("/login", response_model=schemas.Token)
+@router.post("api/login", response_model=schemas.Token)
 async def login(userCredentilas: OAuth2PasswordRequestJson = Depends(), db: Session = Depends(get_db)):
     user = db.query(User).filter(
         User.email == userCredentilas.username).first()

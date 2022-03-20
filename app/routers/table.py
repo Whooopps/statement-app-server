@@ -12,7 +12,7 @@ import calendar
 allow = RoleChecker(["admin"])
 
 router = APIRouter(
-    prefix="/table",
+    prefix="api/table",
     tags=["Tables"]
 )
 
