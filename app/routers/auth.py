@@ -8,13 +8,13 @@ from app.models import User
 router = APIRouter()
 
 
-@router.post("/api/checkemail")
-async def check_email(data: schemas.CheckEmail, db: Session = Depends(get_db)):
-    emailQuery = db.query(User).filter(User.email == data.email).first()
-    if emailQuery is None:
-        return {"valid": True}
+# @router.post("/api/checkemail")
+# async def check_email(data: schemas.CheckEmail, db: Session = Depends(get_db)):
+#     emailQuery = db.query(User).filter(User.email == data.email).first()
+#     if emailQuery is None:
+#         return {"valid": True}
 
-    return {"valid": False}
+#     return {"valid": False}
 
 
 @router.post("/api/login", response_model=schemas.Token)
